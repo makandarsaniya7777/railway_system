@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Ticket</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <div class="container-nav">
+   <nav class="navbar">
+    <b><a href="index.html" class="navbar-itmes">Home</a>
+    <a href="book.html" class="navbar-itmes">Book Ticket</a>
+    <a href="pnr.html" class="navbar-itmes">PNR Status</a>
+    <a href="admin-login.html" class="navbar-itmes">Admin</a>
+    <a href="index.html" class="logo">Railway</a></b>
+  </nav>
+ </div>
+  <div class="container">
+    <h2>Book Your Train Ticket</h2>
+    <form id="bookingForm">
+      <input type="text" name="passenger_name" placeholder="Passenger Name" required>
+      <input type="number" name="age" placeholder="Age" required>
+      <input type="text" name="mobile" placeholder="Mobile Number" required>
+      <input type="text" name="address" placeholder="Address" required>
+      <select name="train_id" id="trainSelect" required>
+        <option value="">Select Train</option>
+      </select>
+      <button type="submit">Book Ticket</button>
+    </form>
+    <div id="bookingResult"></div>
+  </div>
+  <script>
+    // Fetch trains
+    fetch('/api/trains').then(res => res.json()).then(trains => {
+      let sel = document.getElementById('trainSelect');
+      trains.forEach(t => {
+        let opt = document.createElement('option');
+        opt.value = t.id;
+        opt.innerText = `${t.name} (${t.source} to ${t.destination}) - Seats: ${t.available_seats}`;
+        sel.appendChild(opt);
+      });
+    });
+    // Booking form
+    document.getElementById('bookingForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let fd = new FormData(this);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+      let res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      let out = document.getElementById('bookingResult');
+      if (res.ok) {
+        let d = await res.json();
+        out.innerHTML = `<div class="success">Booking Successful!<br>
+        PNR: <b>${d.pnr}</b><br>
+        Seat: <b>${d.seat_number}</b><br>
+        <a href="${d.ticket_url}" target="_blank">Download Ticket PDF</a>
+        </div>`;
+      } else {
+        let d = await res.json();
+        out.innerHTML = `<div class="error">${d.error}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

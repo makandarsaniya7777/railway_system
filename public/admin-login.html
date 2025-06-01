@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <div class="container-nav">
+   <nav class="navbar">
+    <b><a href="index.html" class="navbar-itmes">Home</a>
+    <a href="book.html" class="navbar-itmes">Book Ticket</a>
+    <a href="pnr.html" class="navbar-itmes">PNR Status</a>
+    <a href="admin-login.html" class="navbar-itmes">Admin</a>
+    <a href="index.html" class="logo">Railway</a></b>
+  </nav>
+ </div>
+  <div class="container">
+    <h2>Admin Login</h2>
+    <form id="adminLoginForm">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div id="loginResult"></div>
+  </div>
+  <script>
+    document.getElementById('adminLoginForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let fd = new FormData(this);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+      let res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      let out = document.getElementById('loginResult');
+      if (res.ok) {
+        window.location = "admin-dashboard.html";
+      } else {
+        let d = await res.json();
+        out.innerHTML = `<div class="error">${d.error}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

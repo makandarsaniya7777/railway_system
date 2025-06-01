@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+  <div class="container-nav">
+   <nav class="navbar">
+     <a href="index.html" class="navbar-itmesHome">Home</a>
+    <a href="admin-dashboard.html" class="navbar-itmes">Admin Dashboard</a>
+    <a href="#" id="logoutBtn">Logout</a>
+  
+  </nav>
+ </div>
+  <div class="container">
+    <h2>Admin Dashboard</h2>
+    <div id="adminSection"></div>
+    <div id="superAdminSection" style="display:none;">
+      <h3>Create New Admin</h3>
+      <form id="createAdminForm">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Create Admin</button>
+      </form>
+      <div id="createAdminResult"></div>
+    </div>
+    <h3>Add Train</h3>
+    <form id="addTrainForm">
+      <input type="text" name="name" placeholder="Train Name" required>
+      <input type="text" name="source" placeholder="From" required>
+      <input type="text" name="destination" placeholder="To" required>
+      <input type="number" name="total_seats" placeholder="Total Seats" required>
+      <input type="datetime-local" name="departure" required>
+      <button type="submit">Add Train</button>
+    </form>
+    <div id="addTrainResult"></div>
+    <h3>All Trains</h3>
+    <table border="1" width="100%" id="trainsTable">
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Route</th><th>Seats</th><th>Departure</th><th>Delete</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    // Auth check and admin type
+    fetch('/api/admin/check').then(res => {
+      if (!res.ok) window.location = "admin-login.html";
+      return res.json();
+    }).then(data => {
+      if (data.is_super_admin) document.getElementById('superAdminSection').style.display = 'block';
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/admin/logout', {method: 'POST'});
+      window.location = 'admin-login.html';
+    };
+
+    // Add Train
+    document.getElementById('addTrainForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let fd = new FormData(this);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+      let res = await fetch('/api/admin/train', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      let out = document.getElementById('addTrainResult');
+      if (res.ok) {
+        out.innerHTML = "<span class='success'>Train added!</span>";
+        loadTrains();
+        this.reset();
+      } else {
+        let d = await res.json();
+        out.innerHTML = `<span class='error'>${d.error}</span>`;
+      }
+    };
+
+    // Create Admin (Super Admin Only)
+    document.getElementById('createAdminForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let fd = new FormData(this);
+      let data = {};
+      fd.forEach((v, k) => data[k] = v);
+      let res = await fetch('/api/admin/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      let out = document.getElementById('createAdminResult');
+      if (res.ok) {
+        out.innerHTML = "<span class='success'>Admin created!</span>";
+        this.reset();
+      } else {
+        let d = await res.json();
+        out.innerHTML = `<span class='error'>${d.error}</span>`;
+      }
+    };
+
+    // Load Trains
+    function loadTrains() {
+      fetch('/api/admin/trains').then(res => res.json()).then(trains => {
+        let tbody = document.querySelector('#trainsTable tbody');
+        tbody.innerHTML = '';
+        trains.forEach(t => {
+          let tr = document.createElement('tr');
+          tr.innerHTML = `<td>${t.id}</td>
+            <td>${t.name}</td>
+            <td>${t.source} - ${t.destination}</td>
+            <td>${t.available_seats}/${t.total_seats}</td>
+            <td>${t.departure}</td>
+            <td><button onclick="deleteTrain(${t.id})">Delete</button></td>`;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+    window.deleteTrain = async function(id) {
+      if (!confirm('Delete this train?')) return;
+      await fetch('/api/admin/train/' + id, {method: 'DELETE'});
+      loadTrains();
+    };
+    loadTrains();
+  </script>
+</body>
+</html>

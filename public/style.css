@@ -1,0 +1,130 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: linear-gradient(to right, #f5deb3, #ffe4c4);
+  color: #333;
+  min-height: 100vh;
+}
+
+/* Navigation Bar */
+.container-nav {
+  width: 100%;
+  background: linear-gradient(90deg, #000428, #004e92);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  margin: 10px 20px;
+  font-size: 18px;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.navbar a::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: -4px;
+  left: 0;
+  background: #00f2fe;
+  transition: width 0.4s ease;
+}
+
+.navbar a:hover::after {
+  width: 100%;
+}
+
+.navbar a:hover {
+  transform: scale(1.1);
+  color: #00f2fe;
+}
+
+/* Branding */
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* Main Container */
+.container {
+  padding: 50px 20px;
+  text-align: center;
+  animation: fadeIn 1s ease-in;
+}
+
+.container h1 {
+  font-size: 36px;
+  color: #222;
+  margin-bottom: 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.container h1:hover {
+  transform: translateY(-5px);
+  color: #004e92;
+}
+
+.container p {
+  font-size: 18px;
+  color: #444;
+  max-width: 800px;
+  margin: 0 auto 30px;
+}
+
+.container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.container img:hover {
+  transform: scale(1.02) rotateZ(0.5deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container-nav {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar {
+    flex-direction: column;
+  }
+
+  .navbar a {
+    margin: 10px 0;
+  }
+
+  .container h1 {
+    font-size: 28px;
+  }
+
+  .container p {
+    font-size: 16px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
